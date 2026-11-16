@@ -1,7 +1,7 @@
 ---
-name: 🐛 گزارش باگ بصری یا چیدمان (Design Bug)
-about: گزارش مشکلات ترازبندی، رنگ، فونت یا ریسپانسیو در نسخه‌های مختلف
-title: "[UI-BUG] "
+name: 🐛 [UI-BUG] گزارش باگ بصری یا چیدمان / Design Bug
+about: گزارش مشکلات ترازبندی، رنگ، فونت یا ریسپانسیو
+title: "[UI-BUG][LAYER] عنوان باگ / Bug Title"
 labels: bug, ui-bug
 ---
 

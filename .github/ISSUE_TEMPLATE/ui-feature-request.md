@@ -1,20 +1,30 @@
 ---
-name: 🎨 درخواست طراحی رابط کاربری جدید (UI Feature Request)
-about: تعریف تسک طراحی برای صفحه، مودال یا فیچر جدید در متارنگ
-title: "[UI-FEAT] "
+name: 🎨 [UI-FEAT] درخواست طراحی رابط کاربری جدید / New UI Feature Task
+about: تعریف استاندارد تسک طراحی صفحه، مودال یا قابلیت جدید در اکوسیستم متارنگ
+title: "[UI-FEAT][LAYER] عنوان تسک / Task Title"
 labels: ui-feature, help wanted
 ---
 
-## 🎯 شرح نیاز و هدف طراحی
-توضیح شفاف درباره صفحه یا قابلیت جدیدی که باید طراحی شود.
+## 1. شناسنامه تسک (Task Metadata)
+- **نسخه هدف متارنگ (Target Version):** `v1.1.26`
+- **لایه محصول (Product Layer):** `[ ] External Index` | `[ ] Internal Index` | `[ ] 3D Environment` | `[ ] Design System`
+- **پلتفرم‌های هدف:** `[ ] Web Desktop` | `[ ] Web Mobile` | `[ ] WebGL Desktop` | `[ ] WebGL Mobile` | `[ ] VR Headset`
+- **دایرکتوری مقصد (Target Directory):** `02-internal-index/web-desktop/dark/rtl/`
+- **اولویت (Priority):** `High`
 
-## 🖥️ پلتفرم‌های هدف
-- [ ] External Index (`metarang.com`) - Desktop / Mobile
-- [ ] Internal Index (`world.metarang.com`) - Desktop / Mobile
-- [ ] 3D Environment - WebGL Desktop / WebGL Mobile / VR Headset
+## 2. شرح نیاز و هدف طراحی (Objective & Context)
+توضیح شفاف درباره هدف این صفحه یا قابلیت جدید.
 
-## 📐 نیازمندی‌های تحویلی (Deliverables)
-- [ ] نسخه پایه **Dark Mode + RTL (فارسی)** (الزامی)
-- [ ] لینک عمومی فایل Figma شخصی
-- [ ] خروجی `.png` و مستند `.pdf`
-- [ ] آپدیت توکن‌ها و آیکون‌های جدید در `00-design-system/`
+## 3. اجزا و وضعیت‌های صفحه (UI Components & States)
+- [ ] Default / Active / Hover / Disabled
+- [ ] Empty State / Loading State / Error State
+
+## 4. مراجع و لینک‌های مرتبط (References)
+- **لینک مرجع در Figma مرکزی متارنگ:**
+
+## 5. معیارهای پذیرش (Definition of Done)
+- [ ] نسخه پایه **Dark Mode + RTL (فارسی)** تکمیل شده است.
+- [ ] لینک عمومی Figma شخصی (`Anyone with the link can view`) ثبت شده است.
+- [ ] فایل‌های `.png` و `.pdf` در دایرکتوری مقصد قرار گرفته‌اند.
+- [ ] آیکون‌های `.svg` و توکن‌های `.json` در `00-design-system/` آپدیت شده‌اند.
+- [ ] فایل پروفایل طراح (`HM-xxxx.json`) در `05-contributors/` ثبت شده است.

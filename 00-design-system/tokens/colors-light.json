@@ -1,10 +1,6 @@
 {
   "$schema": "https://tr.designtokens.org/format/",
-  "meta": {
-    "theme": "light",
-    "base_standard": false,
-    "project": "MetaRang"
-  },
+  "meta": { "theme": "light", "base_standard": false, "project": "MetaRang" },
   "color": {
     "brand": {
       "cyan": { "$value": "#0284C7", "$type": "color" },
