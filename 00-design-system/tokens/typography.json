@@ -1,0 +1,9 @@
+{
+  "typography": {
+    "families": {
+      "rtl_persian_arabic": "Vazirmatn, IRANSansX, sans-serif",
+      "ltr_latin_cyrillic": "Inter, Plus Jakarta Sans, sans-serif",
+      "ltr_cjk": "Noto Sans SC, sans-serif"
+    }
+  }
+}

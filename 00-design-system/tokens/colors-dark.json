@@ -1,0 +1,26 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "meta": {
+    "theme": "dark",
+    "base_standard": true,
+    "project": "MetaRang"
+  },
+  "color": {
+    "brand": {
+      "cyan": { "$value": "#00D2FF", "$type": "color" },
+      "sky": { "$value": "#38BDF8", "$type": "color" },
+      "turquoise": { "$value": "#14B8A6", "$type": "color" },
+      "deep_purple": { "$value": "#4C1D95", "$type": "color" },
+      "champagne_gold": { "$value": "#F3E5AB", "$type": "color" }
+    },
+    "surface": {
+      "background_primary": { "$value": "#090D16", "$type": "color" },
+      "glass_card": { "$value": "rgba(17, 25, 40, 0.75)", "$type": "color" },
+      "glass_border": { "$value": "rgba(255, 255, 255, 0.12)", "$type": "color" }
+    },
+    "text": {
+      "primary": { "$value": "#F8FAFC", "$type": "color" },
+      "secondary": { "$value": "#94A3B8", "$type": "color" }
+    }
+  }
+}

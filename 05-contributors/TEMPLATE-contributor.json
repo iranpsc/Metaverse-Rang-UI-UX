@@ -1,0 +1,21 @@
+{
+  "citizen_id": "HM-0000000",
+  "full_name": "نام و نام خانوادگی طراح",
+  "github_username": "username",
+  "role": "UI/UX Designer",
+  "portfolio_url": "https://behance.net/username",
+  "figma_profile": "https://figma.com/@username",
+  "social_links": {
+    "linkedin": "https://linkedin.com/in/username",
+    "dribbble": "https://dribbble.com/username",
+    "telegram": "https://t.me/username"
+  },
+  "contributions": [
+    {
+      "issue_number": "#1",
+      "metarang_version": "v1.1.26",
+      "directory": "02-internal-index/web-desktop/dark/rtl/",
+      "figma_link": "https://www.figma.com/file/..."
+    }
+  ]
+}
