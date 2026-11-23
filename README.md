@@ -71,8 +71,6 @@ Metaverse-Rang-UI-UX/
 ├── 03-3d-environments/                  # 3D Worlds, Spatial HUD & VR UI
 │   ├── web-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
 │   ├── web-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
-│   ├── webgl-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
-│   ├── webgl-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
 │   └── vr-headset/{dark,light}/{rtl,ltr}/<slug>/<lang>/
 ├── 04-community-concepts/               # Experimental & community design concepts
 ├── 05-contributors/                     # Verified MetaRang Citizen contributor profiles (HM-xxxx.json)

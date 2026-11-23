@@ -51,8 +51,6 @@ body:
         - label: "02-internal-index/web-mobile"
         - label: "03-3d-environments/web-desktop"
         - label: "03-3d-environments/web-mobile"
-        - label: "03-3d-environments/webgl-desktop"
-        - label: "03-3d-environments/webgl-mobile"
         - label: "03-3d-environments/vr-headset"
 
   - type: checkboxes
