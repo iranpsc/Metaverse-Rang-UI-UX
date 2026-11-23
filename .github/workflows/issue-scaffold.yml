@@ -1,0 +1,364 @@
+name: Issue Auto-Directory & README Scaffolder
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  scaffold-directories:
+    if: contains(github.event.issue.labels.*.name, 'ui-task')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Parse Issue, Validate & Generate Bilingual READMEs
+        id: scaffold
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          EVENT_ACTION: ${{ github.event.action }}
+        run: |
+          import os, re, json, urllib.request
+
+          repo = os.environ["REPO"]
+          token = os.environ["GH_TOKEN"]
+          issue_num = os.environ["ISSUE_NUMBER"]
+          issue_title = os.environ["ISSUE_TITLE"]
+          body = os.environ["ISSUE_BODY"] or ""
+          author = os.environ["ISSUE_AUTHOR"]
+
+          def api_request(url, method="GET", data=None):
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+              }
+              req = urllib.request.Request(
+                  url,
+                  data=json.dumps(data).encode("utf-8") if data else None,
+                  headers=headers,
+                  method=method,
+              )
+              with urllib.request.urlopen(req) as resp:
+                  return json.loads(resp.read().decode("utf-8"))
+
+          def fail_with_bilingual(en_msg, fa_msg):
+              payload = {
+                  "ok": False,
+                  "comment": (
+                      f"### ❌ Issue Validation Failed | خطا در استانداردسازی تسک\n\n"
+                      f"**English:**\n{en_msg}\n\n"
+                      f"---\n\n"
+                      f"**فارسی:**\n{fa_msg}"
+                  ),
+              }
+              with open("scaffold_result.json", "w", encoding="utf-8") as f:
+                  json.dump(payload, f, ensure_ascii=False)
+              raise SystemExit(1)
+
+          def extract_section(header_prefix):
+              pattern = rf"###\s+{re.escape(header_prefix)}[^\n]*\n+(.*?)(?=\n###\s+|\Z)"
+              m = re.search(pattern, body, re.S)
+              return m.group(1).strip() if m else ""
+
+          task_type_raw = extract_section("Task Type")
+          is_new = task_type_raw.startswith("new-directory")
+          is_enhance = task_type_raw.startswith("enhance-existing")
+          target_version = extract_section("Target Release Version").strip("` ")
+          raw_slug = extract_section("Directory Slug").strip("` ").lower()
+          spec_en = extract_section("Task Description (English)")
+          spec_fa = extract_section("Task Description (Persian)")
+
+          if not (is_new or is_enhance):
+              fail_with_bilingual(
+                  "Invalid or missing **Task Type**.",
+                  "فیلد **نوع فعالیت** نامعتبر یا خالی است."
+              )
+
+          if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", raw_slug):
+              fail_with_bilingual(
+                  f"Invalid Directory Slug `{raw_slug}`. Only lowercase English letters (`a-z`), numbers (`0-9`), and hyphens (`-`) are allowed.",
+                  f"نام دایرکتوری (اسلاگ) `{raw_slug}` معتبر نیست. فقط حروف کوچک انگلیسی (`a-z`)، اعداد (`0-9`) و خط تیره (`-`) مجاز است."
+              )
+
+          # Check locked slug from previous bot comments on this issue
+          comments = api_request(f"https://api.github.com/repos/{repo}/issues/{issue_num}/comments?per_page=100")
+          locked_base_slug = None
+          locked_final_slug = None
+          for c in comments:
+              m_lock = re.search(r"<!--\s*meta-lock:base=([a-z0-9-]+);final=([a-z0-9-]+)\s*-->", c.get("body", ""))
+              if m_lock:
+                  locked_base_slug = m_lock.group(1)
+                  locked_final_slug = m_lock.group(2)
+                  break
+
+          if locked_base_slug and raw_slug != locked_base_slug:
+              fail_with_bilingual(
+                  f"Changing the Directory Slug via Issue edit is **not allowed**. Original locked slug: `{locked_base_slug}`, attempted: `{raw_slug}`.",
+                  f"تغییر نام دایرکتوری (اسلاگ) از طریق ویرایش ایشو **مجاز نیست**. اسلاگ قفل‌شده اولیه: `{locked_base_slug}`، مقدار واردشده: `{raw_slug}`."
+              )
+
+          # Parse checkboxes
+          checked = [x.strip() for x in re.findall(r"-\s*\[[xX]\]\s*(.+)", body)]
+          cats = [x for x in checked if x.startswith(("01-", "02-", "03-"))]
+          themes = [x.split(":", 1)[1].strip() for x in checked if x.startswith("theme:")]
+          dirs = ["rtl"]  # RTL is ALWAYS included by default
+          if any(x.startswith("dir:ltr") for x in checked):
+              dirs.append("ltr")
+          langs = [x.split(":", 1)[1].strip() for x in checked if x.startswith("lang:")]
+
+          if not cats:
+              fail_with_bilingual(
+                  "Please select at least one **Category & Platform**.",
+                  "لطفاً حداقل یک **دسته‌بندی و پلتفرم** انتخاب کنید."
+              )
+          if not themes:
+              fail_with_bilingual(
+                  "Please select at least one **Theme** (`dark` or `light`).",
+                  "لطفاً حداقل یک **تم رنگی** (`dark` یا `light`) انتخاب کنید."
+              )
+          if not langs:
+              fail_with_bilingual(
+                  "Please select at least one **Language** (`fa` or `en`).",
+                  "لطفاً حداقل یک **زبان** (`fa` یا `en`) انتخاب کنید."
+              )
+
+          # Determine final slug (with auto-versioning v2, v3, v4... for enhancements)
+          if locked_final_slug:
+              final_slug = locked_final_slug
+          elif is_new:
+              conflicts = []
+              for c in cats:
+                  for t in themes:
+                      for d in dirs:
+                          candidate = os.path.join(c, t, d, raw_slug)
+                          if os.path.isdir(candidate):
+                              conflicts.append(candidate)
+              if conflicts:
+                  conflict_list = "\n".join(f"- `{p}`" for p in conflicts)
+                  fail_with_bilingual(
+                      f"Directory `{raw_slug}` already exists on `main`. To iterate on it, select **enhance-existing** so the next version (`v2`, `v3`...) is created automatically:\n{conflict_list}",
+                      f"دایرکتوری `{raw_slug}` از قبل در شاخه `main` وجود دارد. برای توسعه آن، گزینه **enhance-existing** را انتخاب کنید تا نسخه جدید (`v2`, `v3`...) به صورت خودکار ساخته شود:\n{conflict_list}"
+                  )
+              final_slug = raw_slug
+          else:
+              base_found = False
+              max_ver = 1
+              ver_pattern = re.compile(rf"^{re.escape(raw_slug)}-v(\d+)$")
+
+              for c in cats:
+                  for t in themes:
+                      for d in dirs:
+                          parent = os.path.join(c, t, d)
+                          if not os.path.isdir(parent):
+                              continue
+                          entries = os.listdir(parent)
+                          if raw_slug in entries and os.path.isdir(os.path.join(parent, raw_slug)):
+                              base_found = True
+                          for entry in entries:
+                              m_v = ver_pattern.match(entry)
+                              if m_v and os.path.isdir(os.path.join(parent, entry)):
+                                  base_found = True
+                                  max_ver = max(max_ver, int(m_v.group(1)))
+
+              if not base_found:
+                  fail_with_bilingual(
+                      f"Base directory `{raw_slug}` does not exist in the selected paths on `main`. Please choose **new-directory** first.",
+                      f"دایرکتوری پایه `{raw_slug}` در مسیرهای انتخاب‌شده روی شاخه `main` وجود ندارد. ابتدا نوع فعالیت را **new-directory** انتخاب کنید."
+                  )
+              final_slug = f"{raw_slug}-v{max_ver + 1}"
+
+          # Generate directories and bilingual README.md files (never deleting existing design files)
+          generated_paths = []
+          for c in cats:
+              for t in themes:
+                  for d in dirs:
+                      for lang in langs:
+                          target_dir = os.path.join(c, t, d, final_slug, lang)
+                          os.makedirs(target_dir, exist_ok=True)
+                          readme_path = os.path.join(target_dir, "README.md")
+                          task_mode_label = (
+                              "New Feature / ایجاد جدید"
+                              if is_new
+                              else f"Versioned Enhancement (from `{raw_slug}`) / توسعه نسخه‌بندی‌شده"
+                          )
+
+                          readme_content = f"""# {final_slug} ({lang.upper()} | {d.upper()} | {t.capitalize()})
+
+> **Metaverse Rang — Official UI/UX Design Specification**  
+> **متارنگ — سند رسمی مشخصات طراحی رابط کاربری**
+
+## Metadata | شناسنامه تسک
+
+| Field / فیلد | Value / مقدار |
+| :--- | :--- |
+| **Issue / ایشو** | #{issue_num} — {issue_title} |
+| **Target Release / نسخه هدف** | `{target_version}` |
+| **Task Mode / نوع فعالیت** | {task_mode_label} |
+| **Category & Platform / دسته‌بندی و بستر** | `{c}` |
+| **Theme / تم** | `{t}` |
+| **Direction / جهت** | `{d}` |
+| **Language / زبان** | `{lang}` |
+| **Directory Slug / اسلاگ** | `{final_slug}` |
+| **Requested By / ثبت‌کننده** | @{author} |
+
+---
+
+## English Specification
+
+{spec_en}
+
+### Delivery & Quality Standards
+- **Allowed Assets:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
+- **Naming Convention:** Lowercase `kebab-case` only (no spaces, uppercase, or non-ASCII characters).
+- **Size & LFS Policy:** Max `5 MB` for 2D/document files; Git LFS is mandatory for `.glb`, `.fbx`, and any file above `10 MB`.
+- **PR Requirements:** Must reference `Closes #{issue_num}` (or `Refs #{issue_num}`), include a valid Figma URL, and receive approval from `@iranpsc/ui-ux-manager`.
+
+---
+
+## مشخصات فنی و طراحی (فارسی)
+
+{spec_fa}
+
+### استانداردهای تحویل و کنترل کیفیت
+- **فرمت‌های مجاز:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
+- **قانون نام‌گذاری:** فقط حروف کوچک انگلیسی، اعداد و خط تیره (بدون فاصله، حروف بزرگ یا کاراکتر فارسی).
+- **حجم و Git LFS:** حداکثر `5 MB` برای فایل‌های دوبعدی/مستندات؛ استفاده از Git LFS برای فایل‌های سه‌بعدی (`.glb`, `.fbx`) و فایل‌های بالای `10 MB` اجباری است.
+- **الزامات PR:** درج شماره ایشو (`Closes #{issue_num}` یا `Refs #{issue_num}`), لینک معتبر Figma و تایید نهایی تیم `@iranpsc/ui-ux-manager`.
+"""
+                          with open(readme_path, "w", encoding="utf-8") as rf:
+                              rf.write(readme_content)
+                          generated_paths.append(target_dir)
+
+          with open("scaffold_result.json", "w", encoding="utf-8") as f:
+              json.dump({
+                  "ok": True,
+                  "base_slug": raw_slug,
+                  "final_slug": final_slug,
+                  "paths": generated_paths,
+                  "branch": f"chore/issue-{issue_num}-{final_slug}"
+              }, f, ensure_ascii=False)
+
+      - name: Commit and Open/Update Scaffold PR to main
+        if: success()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          BRANCH=$(python3 -c 'import json; print(json.load(open("scaffold_result.json"))["branch"])')
+          FINAL_SLUG=$(python3 -c 'import json; print(json.load(open("scaffold_result.json"))["final_slug"])')
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No README changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(ui-scaffold): generate ${FINAL_SLUG} directories and bilingual READMEs for #${ISSUE_NUMBER}"
+          git push -u origin "$BRANCH" --force
+
+          cat <<EOF > pr_body.md
+          Automated directory & bilingual README scaffolding for issue #${ISSUE_NUMBER}.
+
+          Refs #${ISSUE_NUMBER}
+
+          > **Note:** After @iranpsc/ui-ux-manager approves and merges this PR into main, designers can submit their design files into the generated directories.
+          EOF
+
+          EXISTING_PR=$(gh pr list --base main --head "$BRANCH" --json url --jq '.[0].url')
+          if [ -z "$EXISTING_PR" ]; then
+            PR_URL=$(gh pr create               --base main               --head "$BRANCH"               --title "chore(ui-scaffold): ${FINAL_SLUG} (#${ISSUE_NUMBER})"               --body-file pr_body.md)
+          else
+            PR_URL="$EXISTING_PR"
+          fi
+
+          rm -f pr_body.md
+          echo "PR_URL=$PR_URL" >> "$GITHUB_ENV"
+
+      - name: Post Bilingual Success Comment on Issue
+        if: success()
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_URL: ${{ env.PR_URL }}
+        run: |
+          import json, os, urllib.request
+          res = json.load(open("scaffold_result.json", encoding="utf-8"))
+          pr_url = os.environ.get("PR_URL", "")
+          paths_md = "\n".join(f"- `{p}/README.md`" for p in res["paths"])
+
+          comment_body = (
+              f"<!-- meta-lock:base={res['base_slug']};final={res['final_slug']} -->\n"
+              f"### ✅ Directories & Bilingual READMEs Generated | دایرکتوری‌ها و فایل‌های README ایجاد شدند\n\n"
+              f"**English:**\n"
+              f"- **Locked Directory Slug:** `{res['final_slug']}`\n"
+              f"- **Scaffold Pull Request:** {pr_url}\n"
+              f"- **Generated Target Paths:**\n{paths_md}\n\n"
+              f"Once `@iranpsc/ui-ux-manager` merges the scaffold PR into `main`, contributors may submit design PRs strictly inside these directories.\n\n"
+              f"---\n\n"
+              f"**فارسی:**\n"
+              f"- **اسلاگ قفل‌شده نهایی:** `{res['final_slug']}`\n"
+              f"- **لینک Pull Request ساخت دایرکتوری:** {pr_url}\n"
+              f"- **مسیرهای مجاز برای قرارگیری فایل‌ها:**\n{paths_md}\n\n"
+              f"پس از تایید و مرج این Pull Request توسط تیم `@iranpsc/ui-ux-manager` در شاخه `main`، طراحان می‌توانند فایل‌های خود را دقیقاً در همین مسیرها ارسال کنند."
+          )
+
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['REPO']}/issues/{os.environ['ISSUE_NUMBER']}/comments",
+              data=json.dumps({"body": comment_body}).encode("utf-8"),
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+              },
+              method="POST",
+          )
+          urllib.request.urlopen(req)
+
+      - name: Post Bilingual Failure Comment on Issue
+        if: failure()
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          import json, os, urllib.request
+          if os.path.exists("scaffold_result.json"):
+              body = json.load(open("scaffold_result.json", encoding="utf-8")).get("comment", "Validation failed.")
+          else:
+              body = "### ❌ Unexpected Error | خطای غیرمنتظره\n\n**English:** Workflow failed unexpectedly. Check Actions logs.\n\n**فارسی:** اجرای اکشن با خطای غیرمنتظره متوقف شد. لاگ Actions را بررسی کنید."
+
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['REPO']}/issues/{os.environ['ISSUE_NUMBER']}/comments",
+              data=json.dumps({"body": body}).encode("utf-8"),
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json",
+                  "Content-Type": "application/json",
+              },
+              method="POST",
+          )
+          urllib.request.urlopen(req)

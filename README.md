@@ -1,17 +1,17 @@
 <div align="center">
 
 # 🎨 MetaRang UI/UX & Design System
-### User Interface Architecture, User Experience & Design System of the MetaRang Parallel World
+### Automated Open-Source UI/UX Architecture, DesignOps & Design System of the MetaRang Parallel World
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Open Source](https://img.shields.io/badge/Open%20Source-DesignOps-00d2ff.svg)](https://github.com/iranpsc/Metaverse-Rang-UI-UX)
-[![Base Standard](https://img.shields.io/badge/Base%20Standard-Dark%20%7C%20RTL%20(Persian)-1a1a2e.svg)](#)
+[![Base Standard](https://img.shields.io/badge/Base%20Standard-Dark%20%7C%20RTL%20(Default)-1a1a2e.svg)](#)
 [![Platforms](https://img.shields.io/badge/Platforms-Web%20%7C%20WebGL%20%7C%20Mobile%20%7C%20VR-purple.svg)](https://metarang.com)
-[![Languages](https://img.shields.io/badge/i18n-RTL%20%26%20LTR%20(6%20Languages)-gold.svg)](https://world.metarang.com)
+[![Governance](https://img.shields.io/badge/Governance-Automated%20CI%20%26%20CODEOWNERS-14b8a6.svg)](./.github/workflows/pr-guard.yml)
 
 **English** | **[فارسی](#-معماری-رابط-کاربری-تجربه-کاربری-و-سیستم-دیزاین-متارنگ)**
 
-[Official Website (External Index)](https://metarang.com) • [MetaRang World (Internal Index)](https://world.metarang.com) • [Tasks & Issues](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) • [Contribution Guide](./CONTRIBUTING.md)
+[Official Website (External Index)](https://metarang.com) • [MetaRang World (Internal Index)](https://world.metarang.com) • [Tasks & Issues](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) • [Issue Standard](./.github/ISSUE_TEMPLATE/ISSUE-STANDARD.md) • [Contribution Guide](./CONTRIBUTING.md)
 
 </div>
 
@@ -21,13 +21,13 @@
 
 **MetaRang (متارنگ)** is an international 3D parallel world metaverse platform with Iranian roots and a decentralized architecture, initiated in April 2021 (Spring 1400 SH) to pioneer futuristic digital interactions, virtual economy, and 3D urban architecture.
 
-This repository serves as the official open-source **Design System**, **Visual Standards**, and **UI/UX Architecture** hub across all layers of the MetaRang ecosystem. Designed with an open-source, decentralized philosophy, all UI/UX tasks are published as **Issues**, empowering designers worldwide to contribute, iterate on colors and components, submit concepts, and earn official MetaRang citizen rewards and recognition.
+This repository serves as the official open-source **Design System**, **Visual Standards**, and **Automated DesignOps UI/UX Architecture** hub across all layers of the MetaRang ecosystem. Every design task is standardized through structured YAML Issue Forms, automatically scaffolded into strict versioned directories with bilingual documentation, and protected by an automated Pull Request Quality Gatekeeper and `@iranpsc/ui-ux-manager` code ownership.
 
 ---
 
 ## 🔗 Official Master Figma Files
 
-Approved and finalized designs are reviewed by the Design System Management team and consolidated into the official master Figma workspaces:
+Approved and finalized designs are reviewed by `@iranpsc/ui-ux-manager` and consolidated into the official master Figma workspaces:
 
 | Product / Layer | Domain / Environment | Official Master Figma Link |
 | :--- | :--- | :--- |
@@ -39,132 +39,78 @@ Approved and finalized designs are reviewed by the Design System Management team
 
 ## 🏗️ Complete Directory Architecture
 
-The repository is strictly structured across core design tokens, platforms, themes (`dark`/`light`), and text directions (`rtl`/`ltr` supporting 6 languages: Persian, English, Arabic, Russian, Chinese, and Turkish):
+Every UI/UX deliverable follows a deterministic, machine-verified directory hierarchy:
+
+```text
+<category>/<platform>/<theme>/<direction>/<slug>/<lang>/README.md
+```
 
 <pre>
 Metaverse-Rang-UI-UX/
+├── .gitattributes                       # Git LFS enforcement for *.glb & *.fbx
 ├── .github/
+│   ├── CODEOWNERS                       # Mandatory merge approval by @iranpsc/ui-ux-manager
+│   ├── PULL_REQUEST_TEMPLATE.md         # Bilingual PR template (Issue + Figma URL required)
 │   ├── ISSUE_TEMPLATE/
-│   │   ├── ui-feature-request.md        # Template for new UI feature tasks
-│   │   ├── ux-improvement.md            # Template for UX enhancement proposals
-│   │   └── design-bug.md                # Template for visual/layout bug reports
-│   └── PULL_REQUEST_TEMPLATE.md         # Mandatory PR checklist (Base Dark+RTL, Citizen ID, Tokens)
-│
-├── 00-design-system/                    # Core Design System (Single Source of Truth)
-│   ├── tokens/                          # W3C Design Tokens (JSON)
-│   │   ├── colors-dark.json
-│   │   ├── colors-light.json
-│   │   └── typography.json
-│   ├── foundations/                     # Grids, color palettes, 6-language typography scales
-│   ├── components/                      # Core UI components (Glassmorphism cards, buttons, modals)
-│   ├── icons-and-assets/                # Optimized SVG icon packs & brand mascots (e.g., Jelly)
-│   └── CHANGELOG.md                     # Versioned changelog of the Design System
-│
+│   │   ├── config.yml                   # Disables blank issues; links to ISSUE-STANDARD.md
+│   │   ├── ISSUE-STANDARD.md            # Bilingual governance & directory rules
+│   │   ├── ui-task.yml                  # Automated UI Task & Directory Generator form
+│   │   ├── design-system-update.yml     # Design tokens & component update form
+│   │   ├── design-bug.yml               # Visual / layout bug report form
+│   │   └── ux-improvement.yml           # UX improvement proposal form
+│   └── workflows/
+│       ├── issue-scaffold.yml           # Auto-generates directories, v2/v3 versions & bilingual READMEs
+│       └── pr-guard.yml                 # Strict PR Gatekeeper with bilingual (EN/FA) error reporting
+├── 00-design-system/                    # Shared tokens (colors-dark/light, typography), icons & components
 ├── 01-external-index/                   # External Index UI (metarang.com)
-│   ├── web-desktop/                     # Windows & Desktop Web version
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [BASE REFERENCE] Persian, Arabic
-│   │   │   └── ltr/                     # English, Russian, Chinese, Turkish
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── web-mobile/                      # Mobile Web & PWA version
-│       ├── dark/
-│       │   ├── rtl/                     # [BASE REFERENCE]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
+│   ├── web-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   └── web-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
 ├── 02-internal-index/                   # Internal Index UI (world.metarang.com)
-│   ├── web-desktop/                     # Citizen Dashboard, Land Management & Desktop Portal
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [BASE REFERENCE]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── web-mobile/                      # Mobile Internal Index & Android TWA version
-│       ├── dark/
-│       │   ├── rtl/                     # [BASE REFERENCE]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
-├── 03-3d-environments/                  # 3D Spatial & In-World UI (Unity WebGL & VR)
-│   ├── webgl-desktop/                   # Desktop WebGL 3D environment HUD & menus
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [BASE REFERENCE]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   ├── webgl-mobile/                    # Mobile WebGL (Touch controllers & responsive HUD)
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [BASE REFERENCE]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── vr-headset/                      # VR Headset Spatial UI & 3D interactions
-│       ├── dark/
-│       │   ├── rtl/                     # [BASE REFERENCE]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
-├── 04-community-concepts/               # Futuristic concepts & community redesign proposals
-│   └── [HM-xxxx-username]/              # Dedicated folder per contributor by Citizen ID
-│
-├── 05-contributors/                     # Contributor Registry (For attribution & reward allocation)
-│   ├── TEMPLATE-contributor.json        # Standard JSON profile template
-│   └── HM-2000007.json                  # Sample registered designer profile
-│
-├── CONTRIBUTING.md                      # Comprehensive contribution & handoff guidelines
-├── LICENSE                              # GNU AGPL-3.0 Open Source License
-└── README.md                            # Bilingual repository documentation
+│   ├── web-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   └── web-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+├── 03-3d-environments/                  # 3D Worlds, Spatial HUD & VR UI
+│   ├── web-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   ├── web-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   ├── webgl-desktop/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   ├── webgl-mobile/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+│   └── vr-headset/{dark,light}/{rtl,ltr}/<slug>/<lang>/
+├── 04-community-concepts/               # Experimental & community design concepts
+├── 05-contributors/                     # Verified MetaRang Citizen contributor profiles (HM-xxxx.json)
+├── CONTRIBUTING.md                      # Bilingual contribution guide
+├── LICENSE                              # GNU Affero General Public License v3.0
+└── README.md                            # This document
 </pre>
 
-### 📌 Core Design Governance Rules
-1. **Base Reference Standard (`Dark + RTL`):** All new interfaces must first be designed and delivered in **Dark Mode** and **RTL (Persian)** as the primary source of truth. **Light Mode** and **LTR** variants are subsequently localized into their corresponding directories.
-2. **Synchronized Versioning:** UI/UX release versions strictly follow MetaRang's core technical versioning standard (e.g., `v1.1.26`, `v2.0.0`).
-3. **Mandatory Design System Sync:** Whenever a designer introduces or modifies colors, typography, design tokens (`.json`), or vector icons (`.svg`), they must update `00-design-system/` within the same Pull Request so the Design System Lead can integrate them into the Master Figma files.
-
 ---
 
-## 🔄 Designer Contribution Workflow
+## ⚙️ Automated DesignOps & Merge Protection
 
-1. **Pick an Issue:** Browse the [Issues](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) tab and claim an open task (or open a new issue for your futuristic concept).
-2. **Fork & Branch:** Fork this repository and create a descriptive branch (e.g., `feat/internal-index-wallet-dark-rtl`).
-3. **Design in Personal Figma:** Create your designs in your personal Figma workspace using `00-design-system/` tokens, and set sharing permissions to **Public ("Anyone with the link can view")**.
-4. **Prepare Export Deliverables:**
-   - Export high-resolution screens as `.png` and comprehensive user flows/specs as `.pdf` into the exact target directory (e.g., `02-internal-index/web-desktop/dark/rtl/`).
-   - Update modified `.svg` icons and `.json` tokens inside `00-design-system/`.
-   - Document your **Personal Figma Link**, issue number, and designer notes in the target folder's `README.md`.
-5. **Register Citizen Identity (Required):** Create or update your profile file in `05-contributors/` named after your official MetaRang Citizen ID (e.g., `HM-2000007.json`), including your portfolio and social links.
-6. **Submit a Pull Request:** Open a PR and complete the checklist. Once reviewed and approved, your work will be merged into the repository and integrated into MetaRang's Master Figma files under your name.
+To guarantee zero structural drift and international-grade portfolio quality, two GitHub Actions workflows govern all changes to `main`:
 
----
+### 1. Issue Auto-Directory & README Scaffolder (`issue-scaffold.yml`)
+- **Automated Path Generation:** Triggered when a `ui-task` issue is opened or edited, automatically generating `<category>/<platform>/<theme>/<direction>/<slug>/<lang>/README.md` via a Pull Request to `main`.
+- **Mandatory RTL Baseline:** `rtl` is always generated by default; checking `dir:ltr` adds `ltr` alongside it.
+- **Language Subdirectories:** Creates dedicated subdirectories (`fa/`, `en/`) for each selected language.
+- **Immutable Slug Lock:** Locks the original `Directory Slug` on creation; editing the slug later is blocked with a bilingual error comment.
+- **Non-Destructive Auto-Versioning (`v2`, `v3`, `v4`...):** Selecting `enhance-existing` verifies the base folder exists and automatically scaffolds `<slug>-v2`, `<slug>-v3`, etc., preserving all previously merged design files.
 
-## 📐 File Naming & Format Standards
-
-* **Naming Pattern (`kebab-case`):**
-  `[metarang-version]_[screen-or-feature]_[theme]_[direction].[ext]`
-  * *Example:* `v1.1.26_citizen-dashboard_dark_rtl.png`
-* **Allowed File Formats:**
-  * `.svg` — Optimized vector icons and brand graphics
-  * `.png` / `.webp` — Screen exports (`2x` for web/desktop, `1x` for previews)
-  * `.pdf` — Complete design specifications and user flow documentation
-  * `.json` — Design tokens (`00-design-system/`) and contributor profiles (`05-contributors/`)
-  * `.md` — Documentation and Figma reference links
+### 2. PR Quality & Structure Gatekeeper (`pr-guard.yml`)
+Every Pull Request targeting `main` is automatically checked and **blocked from merging** if any rule is violated (with instant **English + Persian** diagnostic comments):
+- **No New Directories in PRs:** Design files must reside strictly inside pre-existing directories containing an approved `README.md` on `main`.
+- **No Deletion of Existing Designs:** Previously merged design assets cannot be deleted (use versioned enhancement issues instead).
+- **Strict Filename Convention:** Lowercase `kebab-case` only (`a-z`, `0-9`, `-`, `_`, `.`) — no spaces, uppercase letters, or Persian characters.
+- **Allowed Formats & Size / Git LFS Policy:**
+  - Allowed design formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`, `.md`.
+  - **Max `5 MB`** for 2D/document files without Git LFS.
+  - **Mandatory Git LFS** for 3D assets (`.glb`, `.fbx`) and any file exceeding **`10 MB`**.
+- **Mandatory Metadata:** Valid JSON syntax for `.json` files, linked Issue reference (`Closes #12` or `Refs #12`), and a public **Figma URL** (`https://www.figma.com/design/...` or `/file/...`).
+- **Mandatory Human Review:** Final visual verification and approval by `@iranpsc/ui-ux-manager` (`CODEOWNERS`).
 
 ---
 
 ## ⚖️ License
 
-This repository is licensed under the **GNU AGPL-3.0 License**. All merged designs become part of MetaRang's open-source infrastructure, with permanent attribution preserved for every contributing designer.
+This repository is licensed under the **GNU Affero General Public License v3.0 (GNU AGPL-3.0)** — see the [LICENSE](./LICENSE) file for full details.
 
 ---
 ---
@@ -172,25 +118,25 @@ This repository is licensed under the **GNU AGPL-3.0 License**. All merged desig
 <div dir="rtl">
 
 # 🎨 معماری رابط کاربری، تجربه کاربری و سیستم دیزاین متارنگ
-### مخزن رسمی و متن‌باز طراحی رابط کاربری و سیستم دیزاین جهان موازی متارنگ
+### مخزن رسمی، متن‌باز و هوشمند طراحی رابط کاربری و سیستم دیزاین جهان موازی متارنگ
 
-**متارنگ (MetaRang)** یک پلتفرم متاورس بین‌المللی و جهان موازی سه‌بعدی با ریشه ایرانی و معماری غیرمتمرکز است که از بهار ۱۴۰۰ آغاز شده و با هدف خلق تجربه‌ای آینده‌نگرانه در تعاملات دیجیتال، اقتصاد مجازی و شهرسازی سه‌بعدی توسعه می‌یابد.
-
-[وب‌سایت اصلی (ایندکس خارجی)](https://metarang.com) • [پورتال و دنیای متارنگ (ایندکس داخلی)](https://world.metarang.com) • [لیست تسک‌ها (Issues)](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) • [راهنمای مشارکت](./CONTRIBUTING.md)
+[وب‌سایت اصلی (ایندکس خارجی)](https://metarang.com) • [پورتال و دنیای متارنگ (ایندکس داخلی)](https://world.metarang.com) • [لیست تسک‌ها (Issues)](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) • [استاندارد ثبت ایشو](./.github/ISSUE_TEMPLATE/ISSUE-STANDARD.md) • [راهنمای مشارکت](./CONTRIBUTING.md)
 
 ---
 
 ## 🌌 درباره این ریپازیتوری
 
-این مخزن مرجع رسمی و متن‌باز **سیستم دیزاین (Design System)**، **استانداردهای بصری** و **معماری رابط کاربری (UI/UX)** در تمامی لایه‌های اکوسیستم متارنگ است. با توجه به ماهیت آینده‌نگرانه و غیرمتمرکز متارنگ، تمامی نیازهای طراحی در قالب **Issue** در این ریپازیتوری تعریف می‌شوند و طراحان از سراسر جهان می‌توانند با مشارکت در این مخزن، ضمن توسعه رابط کاربری متارنگ، امتیاز و پاداش‌های شهروندی متارنگ را دریافت کنند.
+**متارنگ (MetaRang)** یک پلتفرم بین‌المللی جهان موازی سه‌بعدی با ریشه ایرانی و معماری غیرمتمرکز است که از بهار ۱۴۰۰ برای پیشتازی در تعاملات دیجیتال آینده‌نگر، اقتصاد مجازی و معماری شهری سه‌بعدی بنیان‌گذاری شده است.
+
+این مخزن، مرجع رسمی و متن‌باز **سیستم دیزاین (Design System)**، **استانداردهای بصری** و **معماری رابط و تجربه کاربری (UI/UX)** در تمامی لایه‌های اکوسیستم متارنگ است. در نسخه جدید این مخزن، تمامی فرآیندهای ایجاد دایرکتوری، مستندسازی دوزبانه، نسخه‌بندی (`v2`, `v3`...) و کنترل کیفیت پیش از مرج به‌صورت کاملاً خودکار توسط **GitHub Actions** و تیم `@iranpsc/ui-ux-manager` مدیریت می‌شوند.
 
 ---
 
 ## 🔗 مراجع رسمی Figma متارنگ (Official Master Files)
 
-در اکوسیستم متارنگ، فایل‌های تاییدشده و نهایی پس از بررسی Pull Requestها توسط تیم مدیریت سیستم دیزاین در فایل‌های مرکزی زیر تجمیع و منتشر می‌شوند:
+طرح‌های نهایی پس از بررسی و تایید تیم `@iranpsc/ui-ux-manager` در فایل‌های مرکزی Figma متارنگ تجمیع می‌شوند:
 
-| بخش / محصول | دامنه / محیط | لینک دسترسی مستقیم Figma (Master) |
+| لایه محصول | دامنه / محیط | لینک مرجع رسمی Figma |
 | :--- | :--- | :--- |
 | **ایندکس خارجی (External Index)** | `metarang.com` | [مشاهده فایل Figma ایندکس خارجی](https://www.figma.com/design/qyvJ4Sjw4h5gRIrE9KotBY/ui-next?node-id=1863-759&p=f&t=ZhzzROkrsum2bANV-0) |
 | **ایندکس داخلی (Internal Index)** | `world.metarang.com` | [مشاهده فایل Figma ایندکس داخلی](https://www.figma.com/design/lHgvuzgJhUFACNpMBJK0jI/ui?node-id=34-1989&p=f&t=eTHiDSZ99JfQoJ9T-0) |
@@ -198,135 +144,33 @@ This repository is licensed under the **GNU AGPL-3.0 License**. All merged desig
 
 ---
 
-## 🏗️ معماری و ساختار دایرکتوری‌ها
+## ⚙️ سیستم اتوماسیون DesignOps و جلوگیری از مرج اشتباه
 
-فایل‌های طراحی بر اساس نوع محصول، پلتفرم هدف، تم رنگی (`dark`/`light`) و جهت‌گیری زبان (`rtl`/`ltr` با پشتیبانی از ۶ زبان: فارسی، انگلیسی، عربی، روسی، چینی و ترکی) دسته‌بندی شده‌اند:
+برای حفظ پایداری مخزن، جلوگیری از بی‌نظمی دایرکتوری‌ها و حفظ اعتبار بین‌المللی رزومه مشارکت‌کنندگان، دو اکشن تخصصی تمامی تغییرات روی شاخه `main` را کنترل می‌کنند:
 
-<div dir="ltr">
-<pre>
-Metaverse-Rang-UI-UX/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── ui-feature-request.md        # قالب ایشو برای طراحی بخش جدید
-│   │   ├── ux-improvement.md            # قالب ایشو برای بهبود تجربه کاربری
-│   │   └── design-bug.md                # قالب ایشو برای باگ‌های بصری
-│   └── PULL_REQUEST_TEMPLATE.md         # چک‌لیست اجباری بررسی PR (نسخه پایه Dark+RTL، شناسه شهروندی، توکن‌ها)
-│
-├── 00-design-system/                    # هسته مرکزی سیستم دیزاین متارنگ (مرجع تمام نسخه‌ها)
-│   ├── tokens/                          # توکن‌های رنگ، تایپوگرافی، گردی گوشه‌ها (JSON)
-│   │   ├── colors-dark.json
-│   │   ├── colors-light.json
-│   │   └── typography.json
-│   ├── foundations/                     # اصول پایه (شبکه‌بندی، رنگ‌های برند، تایپوگرافی ۶ زبان)
-│   ├── components/                      # کامپوننت‌های پایه (کارت‌های شیشه‌ای/Glassmorphism، دکمه‌ها، مودال‌ها)
-│   ├── icons-and-assets/                # پک آیکون‌های اختصاصی SVG و کاراکترهای برند (مثل Jelly)
-│   └── CHANGELOG.md                     # تاریخچه تمام تغییرات سیستم دیزاین
-│
-├── 01-external-index/                   # رابط کاربری ایندکس خارجی (دامنه metarang.com)
-│   ├── web-desktop/                     # نسخه تحت وب دسکتاپ و ویندوز
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [نسخه پایه و مرجع] فارسی، عربی
-│   │   │   └── ltr/                     # انگلیسی، روسی، چینی، ترکی
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── web-mobile/                      # نسخه تحت وب موبایل و PWA
-│       ├── dark/
-│       │   ├── rtl/                     # [نسخه پایه و مرجع]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
-├── 02-internal-index/                   # رابط کاربری ایندکس داخلی (دامنه world.metarang.com)
-│   ├── web-desktop/                     # داشبورد شهروندی، مدیریت املاک و پورتال دسکتاپ
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [نسخه پایه و مرجع]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── web-mobile/                      # نسخه موبایل ایندکس داخلی و Android TWA
-│       ├── dark/
-│       │   ├── rtl/                     # [نسخه پایه و مرجع]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
-├── 03-3d-environments/                  # رابط کاربری محیط‌های سه‌بعدی (Unity WebGL & VR)
-│   ├── webgl-desktop/                   # نسخه دسکتاپ WebGL محیط سه‌بعدی (HUD و منوها)
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [نسخه پایه و مرجع]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   ├── webgl-mobile/                    # نسخه موبایل WebGL (کنترلرهای لمسی و HUD بهینه)
-│   │   ├── dark/
-│   │   │   ├── rtl/                     # [نسخه پایه و مرجع]
-│   │   │   └── ltr/
-│   │   └── light/
-│   │       ├── rtl/
-│   │       └── ltr/
-│   └── vr-headset/                      # نسخه هدست واقعیت مجازی (Spatial UI و تعاملات سه‌بعدی)
-│       ├── dark/
-│       │   ├── rtl/                     # [نسخه پایه و مرجع]
-│       │   └── ltr/
-│       └── light/
-│           ├── rtl/
-│           └── ltr/
-│
-├── 04-community-concepts/               # ایده‌ها، کانسپت‌های آینده‌نگرانه و بازطراحی‌های پیشنهادی طراحان
-│   └── [HM-xxxx-username]/              # پوشه اختصاصی طراح با شناسه شهروندی
-│
-├── 05-contributors/                     # بانک اطلاعاتی طراحان مشارکت‌کننده (جهت ثبت رزومه و تخصیص پاداش)
-│   ├── TEMPLATE-contributor.json        # فایل الگو برای ثبت مشخصات طراح
-│   └── HM-2000007.json                  # نمونه فایل ثبت‌شده با شناسه شهروندی متارنگ
-│
-├── CONTRIBUTING.md                      # راهنمای جامع مشارکت، قوانین PR و استانداردهای طراحی
-├── LICENSE                              # مجوز متن‌باز (GNU AGPL-3.0)
-└── README.md                            # فایل مستندات دوزبانه مخزن
-</pre>
-</div>
+### ۱. ساخت خودکار دایرکتوری و `README.md` دوزبانه (`issue-scaffold.yml`)
+- **ساخت خودکار ساختار مسیر:** با ثبت فرم `UI-TASK`، مسیر دقیق `<category>/<platform>/<theme>/<direction>/<slug>/<lang>/README.md` همراه با فایل `README.md` دوزبانه (ابتدا انگلیسی، سپس فارسی) در یک Pull Request به شاخه `main` ایجاد می‌شود.
+- **پیش‌فرض اجباری RTL:** جهت `rtl` همیشه به‌صورت پیش‌فرض ساخته می‌شود و در صورت انتخاب `dir:ltr`، نسخه `ltr` نیز ایجاد خواهد شد.
+- **زیرپوشه اختصاصی زبان‌ها:** برای هر زبان انتخاب‌شده (`fa` و `en`)، زیرپوشه مجزا ساخته می‌شود.
+- **قفل شدن اسلاگ (Slug Lock):** پس از ثبت ایشو، تغییر نام دایرکتوری از طریق ویرایش ایشو مسدود است.
+- **نسخه‌بندی خودکار بدون حذف فایل‌های قبلی (`v2`, `v3`, `v4`...):** با انتخاب گزینه `enhance-existing`، نسخه بعدی در کنار دایرکتوری اصلی ایجاد می‌شود و هیچ فایلی از نسخه‌های قبلی حذف نمی‌گردد.
 
-### 📌 قوانین پایه معماری طراحی
-1. **نسخه پایه و مرجع (Base Standard):** تمام طرح‌های جدید ابتدا باید در وضعیت **Dark Mode** و جهت **RTL (زبان فارسی)** طراحی و تحویل شوند. نسخه‌های **Light Mode** و **LTR** (برای زبان‌های انگلیسی، روسی، چینی، ترکی و عربی) بر پایه نسخه مرجع و در پوشه‌های متناظر خود تکمیل می‌گردند.
-2. **هماهنگی نسخه‌بندی (Versioning):** شماره‌گذاری نسخه‌های UI/UX دقیقاً از استاندارد نسخه‌بندی فنی متارنگ (مانند `v1.1.26` یا `v2.0.0`) پیروی می‌کند.
-3. **به‌روزرسانی هم‌زمان سیستم دیزاین:** هرگونه تغییر در پالت رنگی، تایپوگرافی، توکن‌های JSON یا افزودن آیکون‌های SVG جدید باید هم‌زمان توسط طراح در پوشه `00-design-system/` نیز اعمال شود تا مدیر سیستم دیزاین فرآیند یکپارچه‌سازی در فیگمای مرکزی را انجام دهد.
-
----
-
-## 🔄 گردش کار مشارکت طراحان (Contribution Workflow)
-
-1. **انتخاب تسک (Issue):** وارد بخش [Issues](https://github.com/iranpsc/Metaverse-Rang-UI-UX/issues) شوید و تسک مورد نظر خود را انتخاب کنید (یا برای ایده جدید خود یک ایشو ثبت نمایید).
-2. **ساخت Fork و Branch:** مخزن را Fork کرده و یک برنچ با نام استاندارد بسازید (مثال: `feat/internal-index-wallet-dark-rtl`).
-3. **طراحی در Figma شخصی:** طرح خود را در فضای فیگمای شخصی خود بر اساس توکن‌های `00-design-system/` طراحی کنید و دسترسی آن را روی حالت عمومی (**Anyone with the link can view**) قرار دهید.
-4. **آماده‌سازی فایل‌های خروجی و Handoff:**
-   - فایل‌های تصویری صفحات را با پسوند `.png` و مستندات کامل/فلوچارت را با پسوند `.pdf` در دایرکتوری دقیق مربوطه (مثلاً `02-internal-index/web-desktop/dark/rtl/`) قرار دهید.
-   - فایل‌های آیکون `.svg` و توکن‌های `.json` تغییریافته را در مسیر `00-design-system/` آپدیت کنید.
-   - لینک مشاهده فایل **Figma شخصی** خود، شماره ایشو و توضیحات تغییر را در فایل `README.md` همان پوشه ثبت نمایید.
-5. **ثبت هویت شهروندی (الزامی برای امتیازدهی):** در پوشه `05-contributors/` یک فایل با نام شناسه شهروندی متارنگ خود (مثال: `HM-2000007.json`) ایجاد یا به‌روزرسانی کنید و مشخصات، لینک پورتفولیو و شبکه‌های اجتماعی خود را ثبت نمایید.
-6. **ارسال Pull Request:** درخواست PR را ثبت کنید. پس از بررسی توسط تیم معماری و سیستم دیزاین متارنگ، طرح شما در مخزن اصلی Merge شده و به فایل‌های مرکزی Figma منتقل خواهد شد.
-
----
-
-## 📐 استاندارد نام‌گذاری و فرمت فایل‌ها
-
-* **الگوی نام‌گذاری فایل‌ها (`kebab-case`):**
-  `[metarang-version]_[screen-or-feature]_[theme]_[direction].[ext]`
-  * *مثال:* `v1.1.26_citizen-dashboard_dark_rtl.png`
-* **فرمت‌های مجاز:**
-  * `.svg` — آیکون‌ها و المان‌های برداری بهینه‌شده
-  * `.png` / `.webp` — خروجی صفحات با رزولوشن `2x` برای وب و `1x` برای پیش‌نمایش
-  * `.pdf` — مستندات کامل طراحی و User Flow
-  * `.json` — توکن‌های طراحی در `00-design-system/` و پروفایل مشارکت‌کننده در `05-contributors/`
-  * `.md` — مستندات متنی و ثبت لینک‌های Figma
+### ۲. گیت‌کیپر کنترل کیفیت Pull Request (`pr-guard.yml`)
+در صورت بروز هرگونه مغایرت، مرج PR به‌صورت خودکار **مسدود** شده و گزارش دقیق خطاها به **دو زبان انگلیسی و فارسی** روی PR ثبت می‌شود:
+- **ممنوعیت ساخت دایرکتوری جدید در PR:** تمامی فایل‌های طراحی باید صرفاً درون دایرکتوری‌های از پیش ایجادشده و دارای `README.md` روی شاخه `main` قرار بگیرند.
+- **ممنوعیت حذف فایل‌های طراحی‌شده قبلی:** حذف طرح‌های مرج‌شده مجاز نیست.
+- **نام‌گذاری استاندارد (`kebab-case`):** فقط حروف کوچک انگلیسی، اعداد و خط تیره (بدون فاصله، حروف بزرگ یا کاراکتر فارسی).
+- **فرمت‌های مجاز و سقف حجم / Git LFS:**
+  - فرمت‌های مجاز: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`, `.md`.
+  - سقف حجم **۵ مگابایت** برای فایل‌های دوبعدی و مستندات بدون Git LFS.
+  - استفاده از **Git LFS** برای فایل‌های سه‌بعدی (`.glb`, `.fbx`) و تمامی فایل‌های بالای **۱۰ مگابایت** اجباری است.
+- **الزامات متادیتا:** صحت سینتکس فایل‌های `.json`، درج شماره ایشو (`Closes #12` یا `Refs #12`) و درج لینک عمومی معتبر **Figma** در متن PR.
+- **تایید نهایی انسانی (`CODEOWNERS`):** هر PR پس از پاس شدن چک‌های خودکار، برای مرج نهایی در `main` نیازمند تایید تیم `@iranpsc/ui-ux-manager` است.
 
 ---
 
 ## ⚖️ مجوز و مالکیت معنوی (License)
 
-این پروژه تحت مجوز **GNU AGPL-3.0** منتشر شده است. تمامی طرح‌های پذیرفته‌شده بخشی از زیرساخت متن‌باز متارنگ محسوب می‌شوند و نام، پورتفولیو و شناسه شهروندی طراحان مشارکت‌کننده به صورت دائمی در تاریخچه مخزن و مستندات رسمی متارنگ ثبت خواهد شد.
+این مخزن تحت مجوز متن‌باز **GNU Affero General Public License v3.0 (GNU AGPL-3.0)** منتشر شده است. برای جزئیات بیشتر فایل [LICENSE](./LICENSE) را مطالعه کنید.
 
 </div>

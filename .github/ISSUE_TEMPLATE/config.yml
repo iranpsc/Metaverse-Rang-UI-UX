@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 📐 مطالعه استاندارد ثبت ایشو (Issue Standard Guide)
+  - name: "📐 Issue Standard & Automated Governance Guide | راهنمای استاندارد ثبت ایشو و اتوماسیون"
     url: https://github.com/iranpsc/Metaverse-Rang-UI-UX/blob/main/.github/ISSUE_TEMPLATE/ISSUE-STANDARD.md
-    about: لطفاً پیش از ثبت تسک جدید، قوانین نام‌گذاری و ساختار استاندارد ایشوهای متارنگ را مطالعه کنید.
+    about: "Read the bilingual rules for auto-directory scaffolding, v2/v3 versioning, and PR quality gates before opening an issue."

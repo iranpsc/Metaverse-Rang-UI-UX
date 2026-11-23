@@ -1,0 +1,266 @@
+name: PR Quality & Structure Gatekeeper
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  pr-gatekeeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run All PR Structure & Quality Checks
+        id: guard
+        shell: python
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          PR_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          import os, re, json, subprocess
+
+          base_ref = os.environ["BASE_REF"]
+          pr_body = os.environ["PR_BODY"] or ""
+          pr_actor = os.environ["PR_ACTOR"]
+          head_ref = os.environ["PR_HEAD_REF"]
+
+          subprocess.run(["git", "fetch", "origin", "main"], check=True)
+
+          # Detect official bot scaffold PRs (strictly verified by actor + branch + README-only changes)
+          is_bot_scaffold = (
+              pr_actor == "github-actions[bot]"
+              and head_ref.startswith("chore/issue-")
+          )
+
+          # Existing files and directories on main
+          main_files = set(
+              subprocess.check_output(["git", "ls-tree", "-r", "--name-only", base_ref], text=True).splitlines()
+          )
+          existing_dirs = set()
+          for path in main_files:
+              parts = path.split("/")
+              for i in range(1, len(parts)):
+                  existing_dirs.add("/".join(parts[:i]))
+
+          # Changed files with status (A, M, D, R...)
+          diff_lines = subprocess.check_output(
+              ["git", "diff", "--name-status", f"{base_ref}...HEAD"], text=True
+          ).splitlines()
+
+          errors = []  # list of (en_msg, fa_msg)
+
+          design_roots = ("01-external-index/", "02-internal-index/", "03-3d-environments/")
+          system_exempt_prefixes = (".github/", "05-contributors/", "00-design-system/tokens/", ".gitattributes")
+          allowed_exact_names = {
+              "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "LICENSE",
+              "CODEOWNERS", "PULL_REQUEST_TEMPLATE.md", "ISSUE-STANDARD.md",
+              "TEMPLATE-contributor.json", ".gitkeep", ".gitattributes"
+          }
+          allowed_design_exts = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".pdf", ".json", ".glb", ".fbx", ".md"}
+          ext_2d_limit = 5 * 1024 * 1024       # 5 MB
+          ext_lfs_limit = 10 * 1024 * 1024     # 10 MB
+          strict_3d_exts = {".glb", ".fbx"}
+
+          touches_design_files = False
+
+          def is_lfs_pointer(filepath):
+              try:
+                  with open(filepath, "rb") as fp:
+                      head = fp.read(128)
+                  return head.startswith(b"version https://git-lfs.github.com/spec/v1")
+              except Exception:
+                  return False
+
+          for line in diff_lines:
+              if not line.strip():
+                  continue
+              parts = line.split("\t")
+              status = parts[0]
+              filepath = parts[-1]
+              old_path = parts[1] if len(parts) > 2 else filepath
+
+              # If official bot scaffold PR, verify it ONLY touches README.md under design_roots
+              if is_bot_scaffold:
+                  if not (filepath.startswith(design_roots) and filepath.endswith("/README.md")):
+                      errors.append((
+                          f"Bot scaffold PR attempted to modify an unauthorized file: `{filepath}`.",
+                          f"پول‌ریکویست ربات قصد تغییر فایل غیرمجاز `{filepath}` را داشت."
+                      ))
+                  continue
+
+              # 1. Prevent deletion of existing design files
+              if status.startswith("D") and old_path.startswith(design_roots):
+                  errors.append((
+                      f"Deleting previously merged design files is forbidden: `{old_path}`. Create a versioned enhancement issue (`v2`, `v3`...) instead.",
+                      f"حذف فایل‌های طراحی‌شده قبلی مجاز نیست: `{old_path}`. برای توسعه جدید، ایشو توسعه نسخه‌بندی‌شده (`v2`, `v3`...) ثبت کنید."
+                  ))
+                  continue
+
+              if filepath.startswith(design_roots) or filepath.startswith("00-design-system/"):
+                  touches_design_files = True
+
+              # Skip further checks for deleted non-design files
+              if status.startswith("D") or not os.path.exists(filepath):
+                  continue
+
+              # 2. Validate JSON syntax anywhere in repo
+              if filepath.endswith(".json"):
+                  try:
+                      with open(filepath, "r", encoding="utf-8") as jf:
+                          json.load(jf)
+                  except Exception as e:
+                      errors.append((
+                          f"Invalid JSON syntax in `{filepath}`: `{e}`.",
+                          f"ساختار JSON در فایل `{filepath}` نامعتبر است: `{e}`."
+                      ))
+
+              if filepath.startswith(system_exempt_prefixes):
+                  continue
+
+              # 3. Enforce pre-existing directories + README.md existence for design files
+              parent_dir = os.path.dirname(filepath)
+              if filepath.startswith(design_roots):
+                  if parent_dir not in existing_dirs:
+                      errors.append((
+                          f"Creating a new directory in a Pull Request is forbidden: `{parent_dir}` (file: `{filepath}`). Open a UI Task Issue first to auto-generate the directory.",
+                          f"ساخت دایرکتوری جدید در Pull Request مجاز نیست: `{parent_dir}` (فایل: `{filepath}`). ابتدا یک Issue ثبت کنید تا دایرکتوری به صورت خودکار ایجاد شود."
+                      ))
+                  else:
+                      expected_readme = f"{parent_dir}/README.md"
+                      if expected_readme not in main_files:
+                          errors.append((
+                              f"Target directory `{parent_dir}` is missing an approved `README.md` on `main`. Files can only be placed inside Issue-scaffolded task directories.",
+                              f"دایرکتوری مقصد `{parent_dir}` فاقد فایل `README.md` تاییدشده در `main` است. فایل‌ها فقط باید در دایرکتوری‌های ساخته‌شده توسط Issue قرار بگیرند."
+                          ))
+
+              # 4. Strict filename validation (lowercase kebab-case, no spaces/Persian)
+              filename = os.path.basename(filepath)
+              if filename not in allowed_exact_names:
+                  if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*", filename):
+                      errors.append((
+                          f"Invalid filename `{filepath}`. Use only lowercase English letters, numbers, hyphens (`-`), underscores (`_`), and dots (`.`) — no spaces, uppercase, or Persian characters.",
+                          f"نام فایل `{filepath}` استاندارد نیست. فقط حروف کوچک انگلیسی، اعداد، خط تیره (`-`)، آندرلاین (`_`) و نقطه (`.`) مجاز است — بدون فاصله، حروف بزرگ یا کاراکتر فارسی."
+                      ))
+
+              # 5. Allowed extensions inside design roots
+              _, ext = os.path.splitext(filename.lower())
+              if filepath.startswith(design_roots) and ext not in allowed_design_exts:
+                  errors.append((
+                      f"Unsupported file format `{ext}` in `{filepath}`. Allowed: `{', '.join(sorted(allowed_design_exts))}`.",
+                      f"فرمت فایل `{ext}` در `{filepath}` مجاز نیست. فرمت‌های مجاز: `{', '.join(sorted(allowed_design_exts))}`."
+                  ))
+
+              # 6. File size & Git LFS enforcement
+              file_size = os.path.getsize(filepath)
+              lfs_ptr = is_lfs_pointer(filepath)
+
+              if ext in strict_3d_exts and not lfs_ptr and file_size > ext_lfs_limit:
+                  errors.append((
+                      f"3D file `{filepath}` ({file_size / (1024*1024):.2f} MB) exceeds 10 MB and MUST be tracked with Git LFS.",
+                      f"فایل سه‌بعدی `{filepath}` ({file_size / (1024*1024):.2f} مگابایت) بیش از ۱۰ مگابایت است و حتماً باید با Git LFS ثبت شود."
+                  ))
+              elif ext not in strict_3d_exts and not lfs_ptr:
+                  if file_size > ext_lfs_limit:
+                      errors.append((
+                          f"File `{filepath}` ({file_size / (1024*1024):.2f} MB) exceeds 10 MB without Git LFS.",
+                          f"فایل `{filepath}` ({file_size / (1024*1024):.2f} مگابایت) بیش از ۱۰ مگابایت است و باید از Git LFS استفاده کند."
+                      ))
+                  elif ext in {".png", ".jpg", ".jpeg", ".gif", ".svg", ".pdf", ".json"} and file_size > ext_2d_limit:
+                      errors.append((
+                          f"2D/Document file `{filepath}` ({file_size / (1024*1024):.2f} MB) exceeds the 5 MB limit. Please optimize it or use Git LFS.",
+                          f"فایل دوبعدی/سند `{filepath}` ({file_size / (1024*1024):.2f} مگابایت) از سقف مجاز ۵ مگابایت بیشتر است. لطفاً حجم را بهینه کنید یا از Git LFS استفاده کنید."
+                      ))
+
+          # 7. Mandatory Issue Reference in PR body
+          if not re.search(r"\b(closes|fixes|resolves|refs)\s+#\d+\b", pr_body, re.I):
+              errors.append((
+                  "PR description must reference a linked Issue (e.g., `Closes #12` or `Refs #12`).",
+                  "در توضیحات Pull Request حتماً باید شماره ایشو مرتبط ذکر شود (مثال: `Closes #12` یا `Refs #12`)."
+              ))
+
+          # 8. Mandatory Figma URL for human UI/UX PRs
+          if touches_design_files and not is_bot_scaffold:
+              if not re.search(r"https?://(www\.)?figma\.com/(file|design|proto|board)/[^\s)]+", pr_body, re.I):
+                  errors.append((
+                      "A valid **Figma URL** (`https://www.figma.com/design/...` or `/file/...`) is mandatory in the PR description for UI/UX submissions.",
+                      "درج لینک معتبر **Figma** (`https://www.figma.com/design/...` یا `/file/...`) در توضیحات Pull Request برای ارسال طرح‌های رابط کاربری اجباری است."
+                  ))
+
+          with open("guard_report.json", "w", encoding="utf-8") as out:
+              json.dump({"ok": len(errors) == 0, "errors": errors}, out, ensure_ascii=False)
+
+          if errors:
+              for en, fa in errors:
+                  print(f"::error::{en} | {fa}")
+              raise SystemExit(1)
+
+      - name: Post Bilingual Report Comment on PR
+        if: always()
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          import json, os, urllib.request
+
+          report = json.load(open("guard_report.json", encoding="utf-8"))
+          marker = "<!-- pr-gatekeeper-report -->"
+
+          if report["ok"]:
+              body = (
+                  f"{marker}\n"
+                  f"### ✅ PR Quality Gate Passed | تمامی چک‌های استاندارد با موفقیت پاس شدند\n\n"
+                  f"**English:** All structure, directory, naming, file size/LFS, Issue link, and Figma checks passed. Waiting for final approval from `@iranpsc/ui-ux-manager`.\n\n"
+                  f"---\n\n"
+                  f"**فارسی:** تمامی بررسی‌های ساختار دایرکتوری، نام‌گذاری، حجم/LFS، شماره ایشو و لینک فیگما تایید شد. آماده بررسی و تایید نهایی توسط تیم `@iranpsc/ui-ux-manager`."
+              )
+          else:
+              en_items = "\n".join(f"{i+1}. {en}" for i, (en, _) in enumerate(report["errors"]))
+              fa_items = "\n".join(f"{i+1}. {fa}" for i, (_, fa) in enumerate(report["errors"]))
+              body = (
+                  f"{marker}\n"
+                  f"### ❌ PR Blocked by Quality Gatekeeper | مرج توسط سیستم کنترل کیفیت مسدود شد\n\n"
+                  f"#### English — Please resolve the following issues:\n{en_items}\n\n"
+                  f"---\n\n"
+                  f"#### فارسی — لطفاً خطاهای زیر را برطرف کنید:\n{fa_items}"
+              )
+
+          repo = os.environ["REPO"]
+          pr_num = os.environ["PR_NUMBER"]
+          token = os.environ["GH_TOKEN"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "Content-Type": "application/json",
+          }
+
+          list_req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/issues/{pr_num}/comments?per_page=100",
+              headers=headers,
+          )
+          with urllib.request.urlopen(list_req) as resp:
+              comments = json.loads(resp.read().decode("utf-8"))
+
+          existing_id = next((c["id"] for c in comments if marker in c.get("body", "")), None)
+          if existing_id:
+              url = f"https://api.github.com/repos/{repo}/issues/comments/{existing_id}"
+              method = "PATCH"
+          else:
+              url = f"https://api.github.com/repos/{repo}/issues/{pr_num}/comments"
+              method = "POST"
+
+          req = urllib.request.Request(
+              url, data=json.dumps({"body": body}).encode("utf-8"), headers=headers, method=method
+          )
+          urllib.request.urlopen(req)

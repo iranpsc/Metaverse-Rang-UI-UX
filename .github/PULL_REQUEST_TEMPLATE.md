@@ -1,19 +1,18 @@
-## 📌 توضیحات تغییرات و شماره ایشو / PR Description
-- **شماره ایشو مرتبط (Related Issue):** Closes #
-- **نسخه هدف متارنگ (Target MetaRang Version):** (e.g., `v1.1.26`)
-- **پلتفرم هدف (Target Platform):**
-  - [ ] External Index (`metarang.com`)
-  - [ ] Internal Index (`world.metarang.com`)
-  - [ ] 3D Environment (`WebGL / VR`)
-  - [ ] Design System (`00-design-system`)
+## Linked Issue | ایشو مرتبط (Required / اجباری)
+<!-- Use: Closes #123 or Refs #123 -->
+Closes #
 
-## 🔗 لینک فایل Figma شخصی (Public View Link)
-- **لینک دسترسی عمومی فیگما:** [Paste Public Figma Link Here]
+## Figma Design Link | لینک فیگما (Required for UI/UX PRs / اجباری)
+<!-- Public View Link ("Anyone with the link can view") -->
+- **Figma URL:** https://www.figma.com/
 
-## ✅ چک‌لیست استانداردهای متارنگ (تکمیل تمام موارد الزامی است)
-- [ ] **نسخه پایه و مرجع (Base Standard):** طرح در حالت پایه **Dark Mode** و جهت **RTL (فارسی)** به‌طور کامل آماده شده است.
-- [ ] **سایر حالت‌ها (در صورت وجود):** نسخه‌های Light Mode و LTR در پوشه‌های متناظر قرار گرفته‌اند.
-- [ ] **نام‌گذاری استاندارد (Naming Convention):** نام تمامی فایل‌ها مطابق الگوی `[version]_[feature]_[theme]_[direction].[ext]` است.
-- [ ] **فایل‌های خروجی (Deliverables):** فایل‌های `.png` و `.pdf` با کیفیت استاندارد در مسیر دقیق قرار گرفته‌اند.
-- [ ] **به‌روزرسانی سیستم دیزاین (Design System Sync):** آیکون‌های `.svg` و توکن‌های `.json` جدید/تغییریافته در پوشه `00-design-system/` آپدیت شده‌اند.
-- [ ] **ثبت هویت شهروندی (Citizen Identity):** فایل پروفایل من با شناسه شهروندی متارنگ (`HM-xxxx.json`) در پوشه `05-contributors/` ایجاد یا به‌روزرسانی شده است.
+## Summary of Changes | خلاصه تغییرات
+- **English:** 
+- **فارسی:** 
+
+## Pre-Merge Quality Checklist | چک‌لیست استاندارد پیش از مرج
+- [ ] All design files are placed inside pre-existing Issue-scaffolded directories containing an approved `README.md` (no new directories created in this PR). / تمامی فایل‌ها در دایرکتوری‌های از پیش ایجادشده (دارای `README.md`) قرار گرفته‌اند.
+- [ ] Existing design files from previous versions were NOT deleted. / هیچ‌یک از فایل‌های طراحی‌شده قبلی حذف نشده‌اند.
+- [ ] All filenames follow strict lowercase `kebab-case` (no spaces, uppercase, or Persian characters). / نام تمامی فایل‌ها با حروف کوچک انگلیسی و خط تیره است.
+- [ ] 2D/doc files are under `5 MB`; 3D files (`.glb`, `.fbx`) or files over `10 MB` use Git LFS. / محدودیت حجم و Git LFS رعایت شده است.
+- [ ] Citizen profile (`05-contributors/HM-xxxx.json`) and any modified tokens (`00-design-system/`) are up to date. / پرونده هویت شهروندی و توکن‌های سیستم دیزاین به‌روزرسانی شده‌اند.

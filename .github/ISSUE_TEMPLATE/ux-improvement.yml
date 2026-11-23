@@ -1,0 +1,31 @@
+name: "✨ [UX-IMP] UX Improvement Proposal | پیشنهاد بهبود تجربه کاربری"
+description: "Propose user flow optimizations, accessibility enhancements, or interaction improvements."
+title: "[UX-IMP]: "
+labels: ["ux-improvement"]
+body:
+  - type: dropdown
+    id: layer
+    attributes:
+      label: "Target Product Layer | لایه محصول هدف"
+      options:
+        - "01-external-index (metarang.com)"
+        - "02-internal-index (world.metarang.com)"
+        - "03-3d-environments (WebGL / Mobile / VR)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_pain
+    attributes:
+      label: "Current UX Problem | چالش فعلی تجربه کاربری"
+      placeholder: "Describe the friction point in the current user journey..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: "Proposed Solution & Expected Impact | راهکار پیشنهادی و اثر مورد انتظار"
+      placeholder: "Explain the proposed flow, wireframe idea, or benchmark..."
+    validations:
+      required: true

@@ -1,0 +1,42 @@
+name: "🐛 [UI-BUG] Visual or Layout Bug Report | گزارش باگ بصری یا چیدمان"
+description: "Report alignment, theme contrast, RTL/LTR mirroring, typography, or responsive UI defects."
+title: "[UI-BUG]: "
+labels: ["bug", "ui-bug"]
+body:
+  - type: dropdown
+    id: layer
+    attributes:
+      label: "Affected Product Layer | لایه محصول دارای خطا"
+      options:
+        - "01-external-index (metarang.com)"
+        - "02-internal-index (world.metarang.com)"
+        - "03-3d-environments (WebGL / Mobile / VR)"
+        - "00-design-system"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: "Device, OS & Browser | دستگاه، سیستم‌عامل و مرورگر"
+      placeholder: "e.g., iPhone 16 Pro Max (iOS Safari) / Windows Chrome 130"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: variant
+    attributes:
+      label: "Affected Theme & Direction | تم و جهت دارای خطا"
+      options:
+        - label: "Dark Mode"
+        - label: "Light Mode"
+        - label: "RTL"
+        - label: "LTR"
+
+  - type: textarea
+    id: bug_description
+    attributes:
+      label: "Bug Description & Screenshots | شرح خطا و تصاویر"
+      description: "EN: Attach screenshots and explain expected vs actual visual behavior. | FA: اسکرین‌شات خطا و تفاوت رفتار مورد انتظار با وضعیت فعلی را ثبت کنید."
+    validations:
+      required: true

@@ -1,0 +1,46 @@
+name: "🧩 [DS-TOKEN] Design System & Token Update | به‌روزرسانی سیستم دیزاین و توکن‌ها"
+description: "Propose updates to colors, typography tokens (.json), core components, or SVG icons in 00-design-system/."
+title: "[DS-TOKEN]: "
+labels: ["design-system"]
+body:
+  - type: dropdown
+    id: ds_scope
+    attributes:
+      label: "Design System Scope | بخش مرتبط در سیستم دیزاین"
+      options:
+        - "00-design-system/tokens (colors-dark.json, colors-light.json, typography.json)"
+        - "00-design-system/components"
+        - "00-design-system/foundations"
+        - "00-design-system/icons-and-assets"
+    validations:
+      required: true
+
+  - type: input
+    id: target_version
+    attributes:
+      label: "Target Release Version | نسخه هدف"
+      placeholder: "v1.4.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details_en
+    attributes:
+      label: "Change Specification (English) | شرح تغییر (انگلیسی)"
+      placeholder: "Specify token keys, hex/rgba values, or component changes..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: details_fa
+    attributes:
+      label: "Change Specification (Persian) | شرح تغییر (فارسی)"
+      placeholder: "جزئیات دقیق توکن‌ها، رنگ‌ها یا آیکون‌های جدید را شرح دهید..."
+    validations:
+      required: true
+
+  - type: input
+    id: figma_ref
+    attributes:
+      label: "Master Figma Reference URL | لینک مرجع فیگما"
+      placeholder: "https://www.figma.com/design/..."
