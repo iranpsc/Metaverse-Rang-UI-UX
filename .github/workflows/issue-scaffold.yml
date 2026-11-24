@@ -233,47 +233,47 @@ jobs:
 
                           readme_content = f"""# {final_slug} ({lang.upper()} | {d.upper()} | {t.capitalize()})
 
-> **Metaverse Rang — Official UI/UX Design Specification**  
-> **متارنگ — سند رسمی مشخصات طراحی رابط کاربری**
+          > **Metaverse Rang — Official UI/UX Design Specification**  
+          > **متارنگ — سند رسمی مشخصات طراحی رابط کاربری**
 
-## Metadata | شناسنامه تسک
+          ## Metadata | شناسنامه تسک
 
-| Field / فیلد | Value / مقدار |
-| :--- | :--- |
-| **Issue / ایشو** | #{issue_num} — {issue_title} |
-| **Target Release / نسخه هدف** | `{target_version}` |
-| **Task Mode / نوع فعالیت** | {task_mode_label} |
-| **Category & Platform / دسته‌بندی و بستر** | `{c}` |
-| **Theme / تم** | `{t}` |
-| **Direction / جهت** | `{d}` |
-| **Language / زبان** | `{lang}` |
-| **Directory Slug / اسلاگ** | `{final_slug}` |
-| **Requested By / ثبت‌کننده** | @{author} |
+          | Field / فیلد | Value / مقدار |
+          | :--- | :--- |
+          | **Issue / ایشو** | #{issue_num} — {issue_title} |
+          | **Target Release / نسخه هدف** | `{target_version}` |
+          | **Task Mode / نوع فعالیت** | {task_mode_label} |
+          | **Category & Platform / دسته‌بندی و بستر** | `{c}` |
+          | **Theme / تم** | `{t}` |
+          | **Direction / جهت** | `{d}` |
+          | **Language / زبان** | `{lang}` |
+          | **Directory Slug / اسلاگ** | `{final_slug}` |
+          | **Requested By / ثبت‌کننده** | @{author} |
 
----
+          ---
 
-## English Specification
+          ## English Specification
 
-{spec_en}
+          {spec_en}
 
-### Delivery & Quality Standards
-- **Allowed Assets:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
-- **Naming Convention:** Lowercase `kebab-case` only (no spaces, uppercase, or non-ASCII characters).
-- **Size & LFS Policy:** Max `5 MB` for 2D/document files; Git LFS is mandatory for `.glb`, `.fbx`, and any file above `10 MB`.
-- **PR Requirements:** Must reference `Closes #{issue_num}` (or `Refs #{issue_num}`), include a valid Figma URL, and receive approval from `@iranpsc/ui-ux-manager`.
+          ### Delivery & Quality Standards
+          - **Allowed Assets:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
+          - **Naming Convention:** Lowercase `kebab-case` only (no spaces, uppercase, or non-ASCII characters).
+          - **Size & LFS Policy:** Max `5 MB` for 2D/document files; Git LFS is mandatory for `.glb`, `.fbx`, and any file above `10 MB`.
+          - **PR Requirements:** Must reference `Closes #{issue_num}` (or `Refs #{issue_num}`), include a valid Figma URL, and receive approval from `@iranpsc/ui-ux-manager`.
 
----
+          ---
 
-## مشخصات فنی و طراحی (فارسی)
+          ## مشخصات فنی و طراحی (فارسی)
 
-{spec_fa}
+          {spec_fa}
 
-### استانداردهای تحویل و کنترل کیفیت
-- **فرمت‌های مجاز:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
-- **قانون نام‌گذاری:** فقط حروف کوچک انگلیسی، اعداد و خط تیره (بدون فاصله، حروف بزرگ یا کاراکتر فارسی).
-- **حجم و Git LFS:** حداکثر `5 MB` برای فایل‌های دوبعدی/مستندات؛ استفاده از Git LFS برای فایل‌های سه‌بعدی (`.glb`, `.fbx`) و فایل‌های بالای `10 MB` اجباری است.
-- **الزامات PR:** درج شماره ایشو (`Closes #{issue_num}` یا `Refs #{issue_num}`), لینک معتبر Figma و تایید نهایی تیم `@iranpsc/ui-ux-manager`.
-"""
+          ### استانداردهای تحویل و کنترل کیفیت
+          - **فرمت‌های مجاز:** `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.pdf`, `.json`, `.glb`, `.fbx`
+          - **قانون نام‌گذاری:** فقط حروف کوچک انگلیسی، اعداد و خط تیره (بدون فاصله، حروف بزرگ یا کاراکتر فارسی).
+          - **حجم و Git LFS:** حداکثر `5 MB` برای فایل‌های دوبعدی/مستندات؛ استفاده از Git LFS برای فایل‌های سه‌بعدی (`.glb`, `.fbx`) و فایل‌های بالای `10 MB` اجباری است.
+          - **الزامات PR:** درج شماره ایشو (`Closes #{issue_num}` یا `Refs #{issue_num}`), لینک معتبر Figma و تایید نهایی تیم `@iranpsc/ui-ux-manager`.
+          """
                           with open(readme_path, "w", encoding="utf-8") as rf:
                               rf.write(readme_content)
                           generated_paths.append(target_dir)
