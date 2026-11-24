@@ -70,18 +70,46 @@ jobs:
                   json.dump(payload, f, ensure_ascii=False)
               raise SystemExit(1)
 
-          def extract_section(header_prefix):
-              pattern = rf"###\s+{re.escape(header_prefix)}[^\n]*\n+(.*?)(?=\n###\s+|\Z)"
-              m = re.search(pattern, body, re.S)
-              return m.group(1).strip() if m else ""
+          # Match exact GitHub Issue Form field headings
+          field_patterns = {
+              "task_type": r"^###\s+Task Type\b[^\n]*$",
+              "target_version": r"^###\s+Target Release Version\b[^\n]*$",
+              "dir_slug": r"^###\s+Directory Slug\b[^\n]*$",
+              "categories": r"^###\s+Categories & Platforms\b[^\n]*$",
+              "themes": r"^###\s+Themes\b[^\n]*$",
+              "directions": r"^###\s+Layout Directions\b[^\n]*$",
+              "languages": r"^###\s+Languages \(Subdirectories\)\b[^\n]*$",
+              "spec_en": r"^###\s+Task Description \(English\)\b[^\n]*$",
+              "spec_fa": r"^###\s+Task Description \(Persian\)\b[^\n]*$",
+          }
 
-          task_type_raw = extract_section("Task Type")
+          all_field_re = re.compile(
+              r"^###\s+(?:Task Type|Target Release Version|Directory Slug|Categories & Platforms|Themes|Layout Directions|Languages \(Subdirectories\)|Task Description \(English\)|Task Description \(Persian\))\b[^\n]*$",
+              re.M,
+          )
+          matches = list(all_field_re.finditer(body))
+
+          extracted = {k: "" for k in field_patterns}
+          for idx, m in enumerate(matches):
+              header_line = m.group(0)
+              start = m.end()
+              end = matches[idx + 1].start() if idx + 1 < len(matches) else len(body)
+              content = body[start:end].strip()
+              # Strip leading/trailing blank lines and horizontal rule separators if present
+              content = re.sub(r"^---\s*\n+", "", content).strip()
+              content = re.sub(r"\n+---\s*$", "", content).strip()
+              for key, pat in field_patterns.items():
+                  if re.match(pat, header_line):
+                      extracted[key] = content
+                      break
+
+          task_type_raw = extracted["task_type"]
           is_new = task_type_raw.startswith("new-directory")
           is_enhance = task_type_raw.startswith("enhance-existing")
-          target_version = extract_section("Target Release Version").strip("` ")
-          raw_slug = extract_section("Directory Slug").strip("` ").lower()
-          spec_en = extract_section("Task Description (English)")
-          spec_fa = extract_section("Task Description (Persian)")
+          target_version = extracted["target_version"].strip("` ")
+          raw_slug = extracted["dir_slug"].strip("` ").lower()
+          spec_en = extracted["spec_en"]
+          spec_fa = extracted["spec_fa"]
 
           if not (is_new or is_enhance):
               fail_with_bilingual(
@@ -112,8 +140,14 @@ jobs:
                   f"تغییر نام دایرکتوری (اسلاگ) از طریق ویرایش ایشو **مجاز نیست**. اسلاگ قفل‌شده اولیه: `{locked_base_slug}`، مقدار واردشده: `{raw_slug}`."
               )
 
-          # Parse checkboxes
-          checked = [x.strip() for x in re.findall(r"-\s*\[[xX]\]\s*(.+)", body)]
+          # Parse checkboxes across checked sections (categories, themes, directions, languages)
+          checkbox_scope = "\n".join([
+              extracted["categories"],
+              extracted["themes"],
+              extracted["directions"],
+              extracted["languages"],
+          ])
+          checked = [x.strip() for x in re.findall(r"-\s*\[[xX]\]\s*(.+)", checkbox_scope)]
           cats = [x for x in checked if x.startswith(("01-", "02-", "03-"))]
           themes = [x.split(":", 1)[1].strip() for x in checked if x.startswith("theme:")]
           dirs = ["rtl"]  # RTL is ALWAYS included by default
@@ -258,10 +292,12 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          BRANCH=$(python3 -c 'import json; print(json.load(open("scaffold_result.json"))["branch"])')
-          FINAL_SLUG=$(python3 -c 'import json; print(json.load(open("scaffold_result.json"))["final_slug"])')
+          set -e
+          BRANCH=$(python -c 'import json; print(json.load(open("scaffold_result.json"))["branch"])')
+          FINAL_SLUG=$(python -c 'import json; print(json.load(open("scaffold_result.json"))["final_slug"])')
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -277,22 +313,26 @@ jobs:
           git commit -m "chore(ui-scaffold): generate ${FINAL_SLUG} directories and bilingual READMEs for #${ISSUE_NUMBER}"
           git push -u origin "$BRANCH" --force
 
-          cat <<EOF > pr_body.md
-          Automated directory & bilingual README scaffolding for issue #${ISSUE_NUMBER}.
+          PR_TITLE="chore(ui-scaffold): ${FINAL_SLUG} (#${ISSUE_NUMBER})"
+          PR_BODY="Automated directory & bilingual README scaffolding for issue #${ISSUE_NUMBER}.
 
           Refs #${ISSUE_NUMBER}
 
-          > **Note:** After @iranpsc/ui-ux-manager approves and merges this PR into main, designers can submit their design files into the generated directories.
-          EOF
+          > **Note:** After @iranpsc/ui-ux-manager approves and merges this PR into main, designers can submit their design files into the generated directories."
 
-          EXISTING_PR=$(gh pr list --base main --head "$BRANCH" --json url --jq '.[0].url')
+          OWNER="${REPO%/*}"
+          EXISTING_PR=$(gh pr list --base main --head "${OWNER}:${BRANCH}" --json url --jq '.[0].url' 2>/dev/null || true)
           if [ -z "$EXISTING_PR" ]; then
-            PR_URL=$(gh pr create               --base main               --head "$BRANCH"               --title "chore(ui-scaffold): ${FINAL_SLUG} (#${ISSUE_NUMBER})"               --body-file pr_body.md)
+            EXISTING_PR=$(gh pr list --base main --head "$BRANCH" --json url --jq '.[0].url' 2>/dev/null || true)
+          fi
+
+          if [ -z "$EXISTING_PR" ]; then
+            PR_URL=$(gh pr create               --base main               --head "$BRANCH"               --title "$PR_TITLE"               --body "$PR_BODY")
           else
+            gh pr edit "$EXISTING_PR" --title "$PR_TITLE" --body "$PR_BODY" >/dev/null 2>&1 || true
             PR_URL="$EXISTING_PR"
           fi
 
-          rm -f pr_body.md
           echo "PR_URL=$PR_URL" >> "$GITHUB_ENV"
 
       - name: Post Bilingual Success Comment on Issue
