@@ -66,7 +66,7 @@ jobs:
                       f"**فارسی:**\n{fa_msg}"
                   ),
               }
-              with open("scaffold_result.json", "w", encoding="utf-8") as f:
+              with open("/tmp/scaffold_result.json", "w", encoding="utf-8") as f:
                   json.dump(payload, f, ensure_ascii=False)
               raise SystemExit(1)
 
@@ -278,7 +278,7 @@ jobs:
                               rf.write(readme_content)
                           generated_paths.append(target_dir)
 
-          with open("scaffold_result.json", "w", encoding="utf-8") as f:
+          with open("/tmp/scaffold_result.json", "w", encoding="utf-8") as f:
               json.dump({
                   "ok": True,
                   "base_slug": raw_slug,
@@ -296,8 +296,8 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -e
-          BRANCH=$(python -c 'import json; print(json.load(open("scaffold_result.json"))["branch"])')
-          FINAL_SLUG=$(python -c 'import json; print(json.load(open("scaffold_result.json"))["final_slug"])')
+          BRANCH=$(python -c 'import json; print(json.load(open("/tmp/scaffold_result.json"))["branch"])')
+          FINAL_SLUG=$(python -c 'import json; print(json.load(open("/tmp/scaffold_result.json"))["final_slug"])')
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -345,7 +345,7 @@ jobs:
           PR_URL: ${{ env.PR_URL }}
         run: |
           import json, os, urllib.request
-          res = json.load(open("scaffold_result.json", encoding="utf-8"))
+          res = json.load(open("/tmp/scaffold_result.json", encoding="utf-8"))
           pr_url = os.environ.get("PR_URL", "")
           paths_md = "\n".join(f"- `{p}/README.md`" for p in res["paths"])
 
@@ -386,8 +386,8 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           import json, os, urllib.request
-          if os.path.exists("scaffold_result.json"):
-              body = json.load(open("scaffold_result.json", encoding="utf-8")).get("comment", "Validation failed.")
+          if os.path.exists("/tmp/scaffold_result.json"):
+              body = json.load(open("/tmp/scaffold_result.json", encoding="utf-8")).get("comment", "Validation failed.")
           else:
               body = "### ❌ Unexpected Error | خطای غیرمنتظره\n\n**English:** Workflow failed unexpectedly. Check Actions logs.\n\n**فارسی:** اجرای اکشن با خطای غیرمنتظره متوقف شد. لاگ Actions را بررسی کنید."
 
